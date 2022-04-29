@@ -29,7 +29,7 @@ describe('Category Unit Tests', () => {
     category = new Category({ name: 'Movie', description: 'other description'});
     expect(category.props).toMatchObject(
       {
-        name: 'Movies',
+        name: 'Movie',
         description: 'other description'
       }
     );
