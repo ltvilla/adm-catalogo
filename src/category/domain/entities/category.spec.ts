@@ -3,12 +3,20 @@ import {omit} from 'lodash';
 import {validate as uuidValidate} from 'uuid';
 import UniqueEntityId from "../../../@seedwork/domain/value-objects/unique-entity-id.vo";
 
+//stub - fake object
+//spyOn - espiornar uma variable, classe ou metodo
+//mock - fake object - expectativa
+
 describe('Category Unit Tests', () => {
+  beforeEach(() => {
+    Category.validate = jest.fn();
+  });
   test('constructor of category', () => {
     let category = new Category({ name: 'Movie' });
     let props = omit(category.props, 'created_at');
     let created_at = new Date();
 
+    expect(Category.validate).toHaveBeenCalled();
     expect(props).toStrictEqual({
       name: 'Movie',
       description: null,
@@ -63,14 +71,17 @@ describe('Category Unit Tests', () => {
 
     data.forEach(i => {
       const category = new Category(i.props, i.id as any);
-      expect(category.id).not.toBeNull();
-      expect(category.id).toBeInstanceOf(UniqueEntityId);
+      expect(category.uniqueEntityId).not.toBeNull();
+      expect(category.uniqueEntityId).toBeInstanceOf(UniqueEntityId);
     })
   })
 
-  test('getter of name props', () => {
+  test('getter and setter of name props', () => {
     const category = new Category({ name: 'Movie' })
     expect(category.name).toBe('Movie');
+
+    category["name"] = "other name";
+    expect(category.name).toBe('other name');
   })
 
   test('getter and setter of description props', () => {
@@ -100,7 +111,7 @@ describe('Category Unit Tests', () => {
 
     category = new Category({ name: 'Movie', is_active: false });
     expect(category.is_active).toBeFalsy();
-  })
+  });
 
   test('getter of created_at prop', () => {
     const created_at = new Date();
@@ -109,5 +120,25 @@ describe('Category Unit Tests', () => {
 
     category = new Category({ name: 'Movie' });
     expect(category.created_at).toBeInstanceOf(Date);
-  })
+  });
+
+  it("should update a category", () => {
+    const category = new Category({ name: "Movie" });
+    category.update("Documentary", "some description");
+    expect(Category.validate).toHaveBeenCalledTimes(2);
+    expect(category.name).toBe("Documentary");
+    expect(category.description).toBe("some description")
+  });
+
+  it("should active a category", () => {
+    const category = new Category({ name: "Movie", is_active: false });
+    category.activate();
+    expect(category.is_active).toBeTruthy();
+  });
+
+  it("should deactivate a category", () => {
+    const category = new Category({ name: "Movie", is_active: true });
+    category.deactivate();
+    expect(category.is_active).toBeFalsy();
+  });
 });
